@@ -1,6 +1,6 @@
 {
     "name": "ionutmilica/themes",
-    "description": "",
+    "description": "A package for theme system",
     "authors": [
         {
             "name": "Ionut Milica",
@@ -13,7 +13,6 @@
     },
     "autoload": {
         "classmap": [
-            "src/migrations"
         ],
         "psr-0": {
             "Ionutmilica\\Themes\\": "src/"

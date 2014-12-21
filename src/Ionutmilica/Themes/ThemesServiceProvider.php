@@ -32,7 +32,7 @@ class ThemesServiceProvider extends ServiceProvider {
 	{
 		$this->app['themes'] = $this->app->share(function ($app)
 		{
-			$finder = new ThemeFinder($app['files'], $app['config']);
+			$finder = new ThemeFinder($app['files']);
 
 			return new Theme($finder, $app['view'], $app['config'], $app['translator']);
 		});

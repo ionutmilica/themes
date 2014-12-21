@@ -8,19 +8,18 @@ class ThemeFinder {
      * @var Filesystem
      */
     private $filesystem;
+
     /**
-     * @var Repository
+     * @var array
      */
-    private $config;
+    private $config = null;
 
     /**
      * @param Filesystem $filesystem
-     * @param Repository $config
      */
-    public function __construct(Filesystem $filesystem, Repository $config)
+    public function __construct(Filesystem $filesystem)
     {
         $this->filesystem = $filesystem;
-        $this->config = $config;
     }
 
     /**
@@ -41,7 +40,8 @@ class ThemeFinder {
         {
             $themeName = basename($theme);
 
-            $themes[$themeName] = require $theme . '/theme.php';
+            $themes[$themeName] = $this->getThemeInfo($themeName);
+            $themes[$themeName]['enabled'] = $themeName == $this->getCurrent();
         }
 
         return $themes;
@@ -59,6 +59,71 @@ class ThemeFinder {
     }
 
     /**
+     * Save in the config the default theme
+     *
+     * @param $theme
+     */
+    public function setCurrent($theme)
+    {
+        $config = $this->getConfigData() ?: array('current' => $theme);
+
+        if ($config['current'] == $theme)
+            return;
+
+        $config['current'] = $theme;
+        $this->config = $config;
+
+        file_put_contents($this->getMetaConfigFile(), json_encode($config));
+    }
+
+    /**
+     * Get current theme
+     *
+     * @return mixed
+     */
+    public function getCurrent()
+    {
+        $config = $this->getConfigData();
+
+        return $config ? $config['current']: 'default';
+    }
+
+    /**
+     * Get the config for the themes
+     *
+     * @return string
+     */
+    protected function getConfigData()
+    {
+        if ( ! $this->config)
+        {
+            $this->config = json_decode(file_get_contents($this->getMetaConfigFile()), true);
+        }
+
+        return $this->config;
+    }
+
+    /**
+     * Get themes configuration file
+     *
+     * @return string
+     */
+    public function getMetaConfigFile()
+    {
+        return storage_path('meta/themes.json');
+    }
+
+    /**
+     * Get path for themes.
+     *
+     * @return mixed
+     */
+    public function getThemesPath()
+    {
+        return base_path('themes/');
+    }
+
+    /**
      * Get theme location
      *
      * @param $theme
@@ -70,12 +135,13 @@ class ThemeFinder {
     }
 
     /**
-     * Get path for themes.
+     * Get theme init file
      *
-     * @return mixed
+     * @param $theme
+     * @return string
      */
-    public function getThemesPath()
+    public function getThemeInfo($theme)
     {
-        return $this->config->get('themes::config.path');
+        return require $this->getThemePath($theme) . '/theme.php';
     }
 }

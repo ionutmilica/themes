@@ -90,6 +90,7 @@ class Theme {
     public function setCurrent($theme)
     {
         $this->current = $theme;
+        $this->finder->setCurrent($theme);
     }
 
     /**
