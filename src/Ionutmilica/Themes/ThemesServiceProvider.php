@@ -12,6 +12,13 @@ class ThemesServiceProvider extends ServiceProvider {
 	protected $defer = false;
 
 	/**
+	 * @var array
+	 */
+	protected $commands = array(
+		'Make'
+	);
+
+	/**
 	 * Bootstrap the application events.
 	 *
 	 * @return void
@@ -36,6 +43,18 @@ class ThemesServiceProvider extends ServiceProvider {
 
 			return new Theme($finder, $app['view'], $app['config'], $app['translator']);
 		});
+
+		$this->registerCommands();
+	}
+
+	/**
+	 * Register theme package commands
+	 */
+	public function registerCommands()
+	{
+		$this->commands([
+			'Ionutmilica\Themes\Commands\MakeCommand'
+		]);
 	}
 
 	/**
