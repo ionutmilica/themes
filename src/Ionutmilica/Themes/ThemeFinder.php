@@ -29,9 +29,8 @@ class ThemeFinder {
     public function all()
     {
         $themes = array();
-        $path = base_path() . '/themes/';
 
-        if ( ! $this->filesystem->isDirectory($path))
+        if ( ! $this->filesystem->isDirectory($path = $this->getThemesPath()))
         {
             return array();
         }
