@@ -65,15 +65,14 @@ class ThemeFinder {
      */
     public function setCurrent($theme)
     {
-        $config = $this->getConfigData() ?: array('current' => $theme);
+        $config = $this->getConfigData();
 
         if ($config['current'] == $theme)
             return;
 
         $config['current'] = $theme;
-        $this->config = $config;
 
-        file_put_contents($this->getMetaConfigFile(), json_encode($config));
+        $this->setConfigData($config);
     }
 
     /**
@@ -85,7 +84,7 @@ class ThemeFinder {
     {
         $config = $this->getConfigData();
 
-        return $config ? $config['current']: 'default';
+        return $config['current'];
     }
 
     /**
@@ -98,9 +97,25 @@ class ThemeFinder {
         if ( ! $this->config)
         {
             $this->config = json_decode(file_get_contents($this->getMetaConfigFile()), true);
+
+            if ( ! $this->config)
+            {
+                $this->config = array('current' => 'default');
+            }
         }
 
         return $this->config;
+    }
+
+    /**
+     * Save config data to meta file
+     *
+     * @param array $data
+     */
+    protected function setConfigData(array $data)
+    {
+        $this->config = $data;
+        file_put_contents($this->getMetaConfigFile(), json_encode($data));
     }
 
     /**
