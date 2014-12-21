@@ -1,7 +1,6 @@
 <?php namespace Ionutmilica\Themes;
 
 use Illuminate\Support\ServiceProvider;
-use Symfony\Component\Finder\Finder;
 
 class ThemesServiceProvider extends ServiceProvider {
 
@@ -20,6 +19,8 @@ class ThemesServiceProvider extends ServiceProvider {
 	public function boot()
 	{
 		$this->package('ionutmilica/themes');
+
+		$this->app['themes']->registerThemes();
 	}
 
 	/**
@@ -31,7 +32,9 @@ class ThemesServiceProvider extends ServiceProvider {
 	{
 		$this->app['themes'] = $this->app->share(function ($app)
 		{
-			return new Theme(new ThemeFinder($app['files']));
+			$finder = new ThemeFinder($app['files'], $app['config']);
+
+			return new Theme($finder, $app['view'], $app['config'], $app['translator']);
 		});
 	}
 

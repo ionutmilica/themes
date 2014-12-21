@@ -1,5 +1,6 @@
 <?php namespace Ionutmilica\Themes;
 
+use Illuminate\Config\Repository;
 use Illuminate\Filesystem\Filesystem;
 
 class ThemeFinder {
@@ -7,13 +8,19 @@ class ThemeFinder {
      * @var Filesystem
      */
     private $filesystem;
+    /**
+     * @var Repository
+     */
+    private $config;
 
     /**
      * @param Filesystem $filesystem
+     * @param Repository $config
      */
-    public function __construct(Filesystem $filesystem)
+    public function __construct(Filesystem $filesystem, Repository $config)
     {
         $this->filesystem = $filesystem;
+        $this->config = $config;
     }
 
     /**
@@ -33,7 +40,9 @@ class ThemeFinder {
 
         foreach ($directories as $theme)
         {
-            $themes[] = basename($theme);
+            $themeName = basename($theme);
+
+            $themes[$themeName] = require $theme . '/theme.php';
         }
 
         return $themes;
@@ -48,5 +57,26 @@ class ThemeFinder {
     public function has($theme)
     {
         return in_array($theme, $this->all());
+    }
+
+    /**
+     * Get theme location
+     *
+     * @param $theme
+     * @return string
+     */
+    public function getThemePath($theme)
+    {
+        return $this->getThemesPath() . $theme;
+    }
+
+    /**
+     * Get path for themes.
+     *
+     * @return mixed
+     */
+    public function getThemesPath()
+    {
+        return $this->config->get('themes::config.path');
     }
 }
