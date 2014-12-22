@@ -96,7 +96,12 @@ class ThemeFinder {
     {
         if ( ! $this->config)
         {
-            $this->config = json_decode(file_get_contents($this->getMetaConfigFile()), true);
+			$file = $this->getMetaConfigFile();
+			
+			if ($this->filesystem->isFile($file))
+			{
+			    $this->config = json_decode(file_get_contents($file), true);	
+			}
 
             if ( ! $this->config)
             {
