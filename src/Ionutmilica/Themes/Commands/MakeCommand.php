@@ -50,6 +50,7 @@ class MakeCommand extends AbstractMakeCommand {
 			return;
 		}
 
+		$this->filesystem->makeDirectory(public_path('themes/'.$name), 0777, true);
 		$this->filesystem->makeDirectory($path);
 
 		$this->makeDirs($this->dirs, function (&$dir) use ($path) {
