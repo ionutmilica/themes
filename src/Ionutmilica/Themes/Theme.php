@@ -68,13 +68,16 @@ class Theme {
     {
         $theme = $this->getCurrent();
 
-        $loader = require base_path() . '/vendor/autoload.php';
+		if ($this->has($theme))
+		{
+			$loader = require base_path() . '/vendor/autoload.php';
 
-        $namespace = 'Themes\\'.ucfirst($theme);
-        $loader->setPsr4($namespace . "\\", $this->finder->getThemePath($theme));
+			$namespace = 'Themes\\'.ucfirst($theme);
+			$loader->setPsr4($namespace . "\\", $this->finder->getThemePath($theme));
 
-        $provider = $namespace.'\\ThemeServiceProvider';
-        $app->register(new $provider($app));
+			$provider = $namespace.'\\ThemeServiceProvider';
+			$app->register(new $provider($app));
+		}
     }
 
     /**
