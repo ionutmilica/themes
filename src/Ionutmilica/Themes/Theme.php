@@ -1,6 +1,7 @@
 <?php namespace Ionutmilica\Themes;
 
 use Illuminate\Config\Repository as Config;
+use Illuminate\Foundation\Application;
 use Illuminate\Translation\Translator as Lang;
 use Illuminate\View\Environment as View;
 
@@ -48,15 +49,32 @@ class Theme {
     /**
      * Register themes
      */
-    public function registerThemes()
+    public function registerTheme()
     {
-        foreach ($this->all() as $theme => $info)
+        $theme = $this->getCurrent();
+
+        foreach (array('config', 'views', 'lang') as $hint)
         {
-            foreach (array('config', 'views', 'lang') as $hint)
-            {
-                $this->$hint->addNamespace($theme, $this->getThemeComponentPath($theme, $hint));
-            }
+            $this->$hint->addNamespace($theme, $this->getThemeComponentPath($theme, $hint));
         }
+    }
+
+    /**
+     * Register theme service provider to composer
+     *
+     * @param Application $app
+     */
+    public function registerNamespace(Application $app)
+    {
+        $theme = $this->getCurrent();
+
+        $loader = require base_path() . '/vendor/autoload.php';
+
+        $namespace = 'Themes\\'.ucfirst($theme);
+        $loader->setPsr4($namespace . "\\", $this->finder->getThemePath($theme));
+
+        $provider = $namespace.'\\ThemeServiceProvider';
+        $app->register(new $provider($app));
     }
 
     /**
@@ -69,7 +87,7 @@ class Theme {
      */
     public function getThemeComponentPath($theme, $component)
     {
-        return $this->finder->getThemePath($theme) . '/' . $component;
+        return $this->finder->getThemePath($theme) . '/Resources/' . $component;
     }
 
     /**
@@ -79,7 +97,7 @@ class Theme {
      */
     public function getCurrent()
     {
-        return $this->current ?: $this->config->get('themes::current');
+        return $this->current ?: $this->finder->getCurrent();
     }
 
     /**
@@ -89,8 +107,8 @@ class Theme {
      */
     public function setCurrent($theme)
     {
-        $this->current = $theme;
-        $this->finder->setCurrent($theme);
+        $this->current = strtolower($theme);
+        $this->finder->setCurrent($this->current);
     }
 
     /**

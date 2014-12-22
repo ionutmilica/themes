@@ -59,7 +59,7 @@ class ThemeFinder {
     }
 
     /**
-     * Save in the config the default theme
+     * Save in the config the standard theme
      *
      * @param $theme
      */
@@ -100,7 +100,7 @@ class ThemeFinder {
 
             if ( ! $this->config)
             {
-                $this->config = array('current' => 'default');
+                $this->config = array('current' => 'standard');
             }
         }
 

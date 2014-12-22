@@ -27,7 +27,8 @@ class ThemesServiceProvider extends ServiceProvider {
 	{
 		$this->package('ionutmilica/themes');
 
-		$this->app['themes']->registerThemes();
+		$this->app['themes']->registerTheme();
+		$this->app['themes']->registerNamespace($this->app);
 	}
 
 	/**

@@ -4,7 +4,7 @@ use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
 use Symfony\Component\Console\Input\InputArgument;
 
-class MakeCommand extends Command {
+class MakeCommand extends AbstractMakeCommand {
 
 	/**
 	 * The console command name.
@@ -21,25 +21,17 @@ class MakeCommand extends Command {
 	protected $description = 'Creates a new theme';
 
 	protected $dirs = array(
-		'views',
-		'lang',
-		'config',
+		'Controllers',
+		'Resources',
+		'Resources/views',
+		'Resources/lang',
+		'Resources/config',
 	);
-	/**
-	 * @var Filesystem
-	 */
-	private $filesystem;
 
-	/**
-	 * Create a new command instance.
-	 * @param Filesystem $filesystem
-	 */
-	public function __construct(Filesystem $filesystem)
-	{
-		parent::__construct();
-
-		$this->filesystem = $filesystem;
-	}
+	protected $files = array(
+		'routes.php',
+		'filters.php'
+	);
 
 	/**
 	 * Execute the console command.
@@ -60,18 +52,33 @@ class MakeCommand extends Command {
 
 		$this->filesystem->makeDirectory($path);
 
-		foreach ($this->dirs as $dir)
-		{
-			$this->filesystem->makeDirectory($path.'/'.$dir);
-		}
+		$this->makeDirs($this->dirs, function (&$dir) use ($path) {
+			$dir = $path .'/'. $dir;
+		});
 
-		$content = file_get_contents(__DIR__.'/stubs/theme.php');
-		$content = str_replace('$$NAME$$', $name, $content);
+		$this->makeFiles($this->files, '<?php'.PHP_EOL, function (&$file) use ($path) {
+			$file = $path .'/'. $file;
+		});
 
-		$this->filesystem->put($path.'/theme.php', $content);
+		$this->moveStub('theme', $path, array(
+			'NAME' => $name
+		));
+
+		$this->moveStub('ThemeServiceProvider', $path, array(
+			'NAME' => ucfirst($name)
+		));
+
 		$this->info('Theme '. $name . ' created !');
 	}
 
+
+
+	/**
+	 * Get the path of the theme
+	 *
+	 * @param $name
+	 * @return string
+	 */
 	protected function getThemePath($name)
 	{
 		return base_path('themes/'.$name);
