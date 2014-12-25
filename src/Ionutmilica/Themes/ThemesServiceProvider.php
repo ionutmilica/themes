@@ -26,6 +26,8 @@ class ThemesServiceProvider extends ServiceProvider {
 	public function boot()
 	{
 		$this->package('ionutmilica/themes');
+
+		$this->app['themes']->register($this->app);
 	}
 
 	/**
@@ -43,7 +45,6 @@ class ThemesServiceProvider extends ServiceProvider {
 		});
 
 		$this->registerCommands();
-		$this->app['themes']->register($this->app);
 	}
 
 	/**
