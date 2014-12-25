@@ -1,6 +1,5 @@
 <?php namespace Ionutmilica\Themes;
 
-use Illuminate\Config\Repository;
 use Illuminate\Filesystem\Filesystem;
 
 class ThemeFinder {
