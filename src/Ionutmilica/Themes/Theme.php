@@ -1,45 +1,62 @@
 <?php namespace Ionutmilica\Themes;
 
-use Illuminate\Config\Repository as Config;
-use Illuminate\Foundation\Application;
-use Illuminate\Translation\Translator as Lang;
 use Illuminate\View\Factory as View;
+use Illuminate\Foundation\Application;
+use Ionutmilica\Themes\Config as Meta;
+use Illuminate\Config\Repository as Config;
+use Illuminate\Translation\Translator as Lang;
 
 class Theme {
 
     /**
+     * Current active theme
+     *
      * @var
      */
-    protected $current;
+    protected $active;
 
     /**
+     * Theme finder
+     *
      * @var ThemeFinder
      */
     private $finder;
 
     /**
+     * View factory
+     *
      * @var View
      */
     private $views;
 
     /**
+     * Config repository
+     *
      * @var Config
      */
     private $config;
 
     /**
+     * Translator
+     *
      * @var Lang
      */
     private $lang;
+    /**
+     * @var Meta
+     */
+    private $meta;
 
     /**
+     * @param Meta $meta
      * @param ThemeFinder $finder
      * @param View $views
      * @param Config $config
      * @param Lang $lang
      */
-    public function __construct(ThemeFinder $finder, View $views, Config $config, Lang $lang)
+    public function __construct(Meta $meta, ThemeFinder $finder, View $views, Config $config, Lang $lang)
     {
+        $this->meta = $meta;
         $this->finder = $finder;
         $this->views = $views;
         $this->config = $config;
@@ -47,16 +64,28 @@ class Theme {
     }
 
     /**
-     * Register themes
+     * Register active theme.
+     * Add it to composer autoloader, fire theme service provider and register resources
+     *
+     * @param Application $app
+     * @return bool
      */
-    public function registerTheme()
+    public function register(Application $app)
     {
-        $theme = $this->getCurrent();
+        $theme = $this->getActive();
+
+        if ( ! $this->has($theme)) {
+            return false;
+        }
 
         foreach (array('config', 'views', 'lang') as $hint)
         {
             $this->$hint->addNamespace($theme, $this->getThemeComponentPath($theme, $hint));
         }
+
+        $this->registerNamespace($theme, $app);
+
+        return true;
     }
 
     /**
@@ -64,20 +93,15 @@ class Theme {
      *
      * @param Application $app
      */
-    public function registerNamespace(Application $app)
+    public function registerNamespace($theme, Application $app)
     {
-        $theme = $this->getCurrent();
+        $loader = require base_path() . '/vendor/autoload.php';
 
-		if ($this->has($theme))
-		{
-			$loader = require base_path() . '/vendor/autoload.php';
+        $namespace = 'Themes\\'.ucfirst($theme);
+        $loader->setPsr4($namespace . "\\", $this->finder->getThemePath($theme));
 
-			$namespace = 'Themes\\'.ucfirst($theme);
-			$loader->setPsr4($namespace . "\\", $this->finder->getThemePath($theme));
-
-			$provider = $namespace.'\\ThemeServiceProvider';
-			$app->register(new $provider($app));
-		}
+        $provider = $namespace.'\\ThemeServiceProvider';
+        $app->register(new $provider($app));
     }
 
     /**
@@ -98,9 +122,9 @@ class Theme {
      *
      * @return mixed
      */
-    public function getCurrent()
+    public function getActive()
     {
-        return $this->current ?: $this->finder->getCurrent();
+        return $this->meta->get('theme');
     }
 
     /**
@@ -108,10 +132,11 @@ class Theme {
      *
      * @param $theme
      */
-    public function setCurrent($theme)
+    public function setActive($theme)
     {
-        $this->current = strtolower($theme);
-        $this->finder->setCurrent($this->current);
+        if ($this->has($theme)) {
+            $this->meta->set('theme', $theme);
+        }
     }
 
     /**
@@ -143,7 +168,7 @@ class Theme {
      */
     public function asset($asset)
     {
-        return asset('themes/' . $this->current . '/' . $asset);
+        return asset('themes/' . $this->active . '/' . $asset);
     }
 
     /**
@@ -190,6 +215,6 @@ class Theme {
      */
     public function getThemeNamespace($key)
     {
-        return $this->getCurrent(). '::' . $key;
+        return $this->getActive(). '::' . $key;
     }
 }
