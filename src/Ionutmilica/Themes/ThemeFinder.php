@@ -1,18 +1,18 @@
 <?php namespace Ionutmilica\Themes;
 
-use Illuminate\Config\Repository;
 use Illuminate\Filesystem\Filesystem;
 
 class ThemeFinder {
+
+    /**
+     * @var string
+     */
+    protected $themesPath;
+
     /**
      * @var Filesystem
      */
     private $filesystem;
-
-    /**
-     * @var array
-     */
-    private $config = null;
 
     /**
      * @param Filesystem $filesystem
@@ -20,6 +20,7 @@ class ThemeFinder {
     public function __construct(Filesystem $filesystem)
     {
         $this->filesystem = $filesystem;
+        $this->themesPath = base_path('themes/');
     }
 
     /**
@@ -29,7 +30,7 @@ class ThemeFinder {
     {
         $themes = array();
 
-        if ( ! $this->filesystem->isDirectory($path = $this->getThemesPath()))
+        if ( ! $this->filesystem->isDirectory($path = $this->themesPath))
         {
             return array();
         }
@@ -41,7 +42,6 @@ class ThemeFinder {
             $themeName = basename($theme);
 
             $themes[$themeName] = $this->getThemeInfo($themeName);
-            $themes[$themeName]['enabled'] = $themeName == $this->getCurrent();
         }
 
         return $themes;
@@ -61,91 +61,6 @@ class ThemeFinder {
     }
 
     /**
-     * Save in the config the standard theme
-     *
-     * @param $theme
-     */
-    public function setCurrent($theme)
-    {
-        $config = $this->getConfigData();
-
-        if ($config['current'] == $theme)
-            return;
-
-        $config['current'] = $theme;
-
-        $this->setConfigData($config);
-    }
-
-    /**
-     * Get current theme
-     *
-     * @return mixed
-     */
-    public function getCurrent()
-    {
-        $config = $this->getConfigData();
-
-        return $config['current'];
-    }
-
-    /**
-     * Get the config for the themes
-     *
-     * @return string
-     */
-    protected function getConfigData()
-    {
-        if ( ! $this->config)
-        {
-			$file = $this->getMetaConfigFile();
-			
-			if ($this->filesystem->isFile($file))
-			{
-			    $this->config = json_decode(file_get_contents($file), true);	
-			}
-
-            if ( ! $this->config)
-            {
-                $this->config = array('current' => 'standard');
-            }
-        }
-
-        return $this->config;
-    }
-
-    /**
-     * Save config data to meta file
-     *
-     * @param array $data
-     */
-    protected function setConfigData(array $data)
-    {
-        $this->config = $data;
-        file_put_contents($this->getMetaConfigFile(), json_encode($data));
-    }
-
-    /**
-     * Get themes configuration file
-     *
-     * @return string
-     */
-    public function getMetaConfigFile()
-    {
-        return storage_path('meta/themes.json');
-    }
-
-    /**
-     * Get path for themes.
-     *
-     * @return mixed
-     */
-    public function getThemesPath()
-    {
-        return base_path('themes/');
-    }
-
-    /**
      * Get theme location
      *
      * @param $theme
@@ -153,7 +68,7 @@ class ThemeFinder {
      */
     public function getThemePath($theme)
     {
-        return $this->getThemesPath() . $theme;
+        return $this->themesPath . $theme;
     }
 
     /**

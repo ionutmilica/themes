@@ -27,8 +27,7 @@ class ThemesServiceProvider extends ServiceProvider {
 	{
 		$this->package('ionutmilica/themes');
 
-		$this->app['themes']->registerTheme();
-		$this->app['themes']->registerNamespace($this->app);
+		$this->app['themes']->register($this->app);
 	}
 
 	/**
@@ -42,7 +41,7 @@ class ThemesServiceProvider extends ServiceProvider {
 		{
 			$finder = new ThemeFinder($app['files']);
 
-			return new Theme($finder, $app['view'], $app['config'], $app['translator']);
+			return new Theme(new Config(),$finder, $app['view'], $app['config'], $app['translator']);
 		});
 
 		$this->registerCommands();
