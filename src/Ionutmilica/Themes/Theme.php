@@ -3,7 +3,7 @@
 use Illuminate\Config\Repository as Config;
 use Illuminate\Foundation\Application;
 use Illuminate\Translation\Translator as Lang;
-use Illuminate\View\Environment as View;
+use Illuminate\View\Factory as View;
 
 class Theme {
 
