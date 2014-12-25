@@ -50,12 +50,14 @@ class ThemeFinder {
     /**
      * Check if a given theme exists
      *
-     * @param $theme
+     * @param $name
      * @return bool
      */
-    public function has($theme)
+    public function has($name)
     {
-        return in_array($theme, $this->all());
+        $themes = $this->all();
+
+        return isset($themes[$name]);
     }
 
     /**

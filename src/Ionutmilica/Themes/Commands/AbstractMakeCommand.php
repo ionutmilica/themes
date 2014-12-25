@@ -20,21 +20,33 @@ abstract class AbstractMakeCommand extends Command {
     }
 
     /**
+     * Create dir if does not exists !
+     *
+     * @param $directory
+     * @return bool
+     */
+    public function makeDir($directory)
+    {
+        if ( ! $this->filesystem->isDirectory($directory)) {
+            return $this->filesystem->makeDirectory($directory);
+        }
+        return false;
+    }
+
+    /**
      * Make directories
      *
      * @param $dirs
      * @param null $callback
      */
-    public function makeDirs($dirs, $callback = null)
+    public function makeDirs(array $dirs, $callback = null)
     {
-        if (is_callable($callback))
-        {
+        if (is_callable($callback)) {
             array_walk($dirs, $callback);
         }
 
-        foreach ($dirs as $dir)
-        {
-            $this->filesystem->makeDirectory($dir);
+        foreach ($dirs as $dir) {
+           $this->makeDir($dir);
         }
     }
 
@@ -47,13 +59,11 @@ abstract class AbstractMakeCommand extends Command {
      */
     public function makeFiles($files, $content = '', $callback = null)
     {
-        if (is_callable($callback))
-        {
+        if (is_callable($callback)) {
             array_walk($files, $callback);
         }
 
-        foreach ($files as $file)
-        {
+        foreach ($files as $file) {
             $this->filesystem->put($file, $content);
         }
     }
@@ -82,8 +92,7 @@ abstract class AbstractMakeCommand extends Command {
     {
         $content = file_get_contents(__DIR__.'/stubs/'.$file.'.txt');
 
-        foreach ($data as $var => $rep)
-        {
+        foreach ($data as $var => $rep) {
             $content = str_replace('$$'.$var.'$$', $rep, $content);
         }
 
