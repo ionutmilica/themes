@@ -1,6 +1,5 @@
 <?php namespace Ionutmilica\Themes;
 
-use Illuminate\View\Factory as View;
 use Illuminate\Foundation\Application;
 use Ionutmilica\Themes\Config as Meta;
 use Illuminate\Config\Repository as Config;
@@ -54,7 +53,7 @@ class Theme {
      * @param Config $config
      * @param Lang $lang
      */
-    public function __construct(Meta $meta, ThemeFinder $finder, View $views, Config $config, Lang $lang)
+    public function __construct(Meta $meta, ThemeFinder $finder, $views, Config $config, Lang $lang)
     {
         $this->meta = $meta;
         $this->finder = $finder;

@@ -52,9 +52,9 @@ class ThemesServiceProvider extends ServiceProvider {
 	 */
 	public function registerCommands()
 	{
-		$this->commands([
+		$this->commands(array(
 			'Ionutmilica\Themes\Commands\MakeCommand'
-		]);
+		));
 	}
 
 	/**

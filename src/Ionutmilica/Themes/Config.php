@@ -10,7 +10,7 @@ class Config {
     /**
      * @var array
      */
-    protected $defaults = ['theme' => 'standard'];
+    protected $defaults = array('theme' => 'standard');
     
     /**
      * @var array

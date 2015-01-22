@@ -51,17 +51,17 @@ class MakeCommand extends AbstractMakeCommand {
 		}
 
 		$themesPath = base_path('themes/');
-		$this->makeDirs([
+		$this->makeDirs(array(
 			$themesPath,
 			$themesPath.'/'.$name
-		]);
+		));
 
 		/** Public assets */
 		$themesPath = public_path('themes/');
-		$this->makeDirs([
+		$this->makeDirs(array(
 			$themesPath,
 			$themesPath.'/'.$name
-		]);
+		));
 
 		$this->makeDirs($this->dirs, function (&$dir) use ($path) {
 			$dir = $path .'/'. $dir;
